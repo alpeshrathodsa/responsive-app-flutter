@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import './widgets/new_transaction.dart';
@@ -143,8 +145,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isLandScape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
+    final medaiQuery = MediaQuery.of(context);
+    final isLandScape = medaiQuery.orientation == Orientation.landscape;
     final appBar = AppBar(
       title: Text(
         'Personal Expenses',
@@ -161,9 +163,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
     final txListWidget = Container(
       child: TransactionList(_userTransactions, _deleteTx),
-      height: (MediaQuery.of(context).size.height -
+      height: (medaiQuery.size.height -
               appBar.preferredSize.height -
-              MediaQuery.of(context).padding.top) *
+              medaiQuery.padding.top) *
           0.7,
     );
 
@@ -179,7 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text('Show Chart'),
-                  Switch(
+                  Switch.adaptive(
+                    activeColor: Theme.of(context).accentColor,
                     value: _showChart,
                     onChanged: (value) {
                       setState(() {
@@ -193,27 +196,21 @@ class _MyHomePageState extends State<MyHomePage> {
               _showChart
                   ? Container(
                       child: Chart(_recentTransactions),
-                      height: (MediaQuery.of(context)
-                                  .size
-                                  .height /*This is screen height*/ -
-                              appBar.preferredSize
-                                  .height /*This is appbar height*/ -
-                              MediaQuery.of(context)
-                                  .padding
-                                  .top /*This is statusbar height*/) *
-                          0.7,
+                      height:
+                          (medaiQuery.size.height /*This is screen height*/ -
+                                  appBar.preferredSize
+                                      .height /*This is appbar height*/ -
+                                  medaiQuery.padding
+                                      .top /*This is statusbar height*/) *
+                              0.7,
                     )
                   : txListWidget,
             if (!isLandScape)
               Container(
                 child: Chart(_recentTransactions),
-                height: (MediaQuery.of(context)
-                            .size
-                            .height /*This is screen height*/ -
+                height: (medaiQuery.size.height /*This is screen height*/ -
                         appBar.preferredSize.height /*This is appbar height*/ -
-                        MediaQuery.of(context)
-                            .padding
-                            .top /*This is statusbar height*/) *
+                        medaiQuery.padding.top /*This is statusbar height*/) *
                     0.3,
               ),
             if (!isLandScape) txListWidget,
@@ -221,12 +218,14 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _startAddNewTx(context);
-        },
-        child: Icon(Icons.add),
-      ),
+      floatingActionButton: Platform.isIOS//if not ios then only display floating button
+          ? Container()
+          : FloatingActionButton(
+              onPressed: () {
+                _startAddNewTx(context);
+              },
+              child: Icon(Icons.add),
+            ),
     );
   }
 }
